@@ -43,7 +43,7 @@ student ai tutor
 <meta name="theme-color" content="#4CAF50">
 </head>
 <body class="bg-white w-full h-full">
-<!-- Sound Enable Prompt (Pehli baar dikhega) -->
+<!-- Sound Enable Prompt (Sirf pehli baar dikhega) -->
 <div id="soundPrompt" class="fixed inset-0 bg-black/80 z-[999] flex items-center justify-center hidden">
   <div class="bg-white rounded-3xl p-8 text-center max-w-xs shadow-2xl">
     <img src="https://i.postimg.cc/0yF9xZ8k/raju-sir-avatar.png" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-purple-600">
@@ -55,8 +55,7 @@ student ai tutor
   </div>
 </div>
 
-
-<!-- Welcome Toast with Play Sound Button -->
+<!-- Welcome Toast (Ab isme Play Sound button bhi hai) -->
 <div id="welcomeToast" class="hidden fixed bottom-20 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-5 rounded-3xl shadow-2xl z-50 max-w-sm border-4 border-white">
   <div class="flex items-center gap-4">
     <img src="https://i.postimg.cc/0yF9xZ8k/raju-sir-avatar.png" class="w-16 h-16 rounded-full border-4 border-white shadow-2xl" alt="Raju Sir">
@@ -65,7 +64,7 @@ student ai tutor
       <p class="text-sm opacity-90">Welcome back bhai!</p>
       <p class="text-xs mt-1 opacity-80">Aaj kaunsa chapter padhna hai?</p>
     </div>
-    <button id="playSoundBtn" class="bg-white/20 rounded-full p-2 hover:bg-white/30 transition">
+    <button id="playSoundBtn" class="bg-white/20 rounded-full p-2 hover:bg-white/30 transition ml-2">
       <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
         <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
       </svg>
@@ -74,93 +73,102 @@ student ai tutor
 </div>
 
 <script>
-// Latest Fix: Gesture Required for Chrome/Mobile (2024-2025)
-let currentUsername = null;
+// Global variables
+let voiceEnabled = localStorage.getItem('rajuVoiceEnabled') === 'true';
+let pendingUsername = null;
 
-function unlockAndSpeak(text) {
-  // Cancel any ongoing
+// Enable sound (pehli baar)
+async function enableSoundAndWelcome() {
+  document.getElementById('soundPrompt').classList.add('hidden');
+  localStorage.setItem('rajuVoiceEnabled', 'true');  // Permanent save
+  voiceEnabled = true;
+
+  // Dummy speech with text (not empty) to activate API (user gesture hai yahan)
+  const dummy = new SpeechSynthesisUtterance("hi bhai");
+  dummy.volume = 0;  // Silent, but text hai
+  window.speechSynthesis.speak(dummy);
+
+  // Real welcome
+  if (pendingUsername) {
+    showWelcomeToast(pendingUsername);
+    speakWelcome(`Arre ${pendingUsername}! Welcome back bhai! Aaj kaunsa chapter padhna hai?`);
+  }
+}
+
+// Voice function (fixed voices load)
+function speakWelcome(text) {
+  if (!voiceEnabled || !('speechSynthesis' in window)) return;
+
   window.speechSynthesis.cancel();
-
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'hi-IN';
   utterance.rate = 0.9;
   utterance.pitch = 1.1;
   utterance.volume = 1;
 
-  // Wait for voices (onvoiceschanged event)
-  if (window.speechSynthesis.getVoices().length > 0) {
-    setVoice(utterance);
+  const speakNow = () => {
+    const voices = window.speechSynthesis.getVoices();
+    if (voices.length === 0) {
+      // Wait for voices (mobile Chrome fix)
+      setTimeout(speakNow, 500);
+      return;
+    }
+    const voice = voices.find(v => v.lang.includes('hi') && v.name.toLowerCase().includes('male'))
+               || voices.find(v => v.lang.includes('hi'))
+               || voices[0];
+    if (voice) utterance.voice = voice;
+    console.log("Voice set:", voice ? voice.name : "Default");
     window.speechSynthesis.speak(utterance);
-  } else {
-    window.speechSynthesis.onvoiceschanged = () => {
-      setVoice(utterance);
-      window.speechSynthesis.speak(utterance);
-    };
-  }
+  };
+  speakNow();
 }
 
-function setVoice(utterance) {
-  const voices = window.speechSynthesis.getVoices();
-  const hindiVoice = voices.find(v => v.lang.startsWith('hi')) || voices[0];
-  if (hindiVoice) utterance.voice = hindiVoice;
-  console.log('Voice selected:', hindiVoice ? hindiVoice.name : 'Default');
-}
-
-function showWelcomeToast(name) {
-  currentUsername = name;
+// Show toast (ab button ke saath)
+function showWelcomeToast(username) {
   const toast = document.getElementById('welcomeToast');
-  document.getElementById('welcomeName').textContent = `Arre ${name}!`;
+  document.getElementById('welcomeName').textContent = `Arre ${username}!`;
   toast.classList.remove('hidden');
+  toast.style.animation = 'bounceIn 1s';
 
-  // Play button click handler
+  // Play button onclick (har reload pe gesture ke liye)
   document.getElementById('playSoundBtn').onclick = () => {
-    const message = `Arre ${name}! Welcome back bhai! Aaj kaunsa chapter padhna hai?`;
-    unlockAndSpeak(message);
+    speakWelcome(`Arre ${username}! Welcome back bhai! Aaj kaunsa chapter padhna hai?`);
   };
 
-  // Auto fade after 7 sec
   setTimeout(() => {
-    toast.style.transition = 'all 0.7s ease-out';
-    toast.style.opacity = '0';
+    toast.style.transition = 'all 0.7s';
     toast.style.transform = 'translateX(-50%) translateY(150px) scale(0.8)';
+    toast.style.opacity = '0';
     setTimeout(() => {
       toast.classList.add('hidden');
-      toast.style.opacity = '1';
       toast.style.transform = 'translateX(-50%)';
+      toast.style.opacity = '1';
     }, 700);
-  }, 7000);
+  }, 6000);
 }
 
-// Main Logic
+// Main logic
 document.addEventListener('DOMContentLoaded', async () => {
-  if (!['/', '/index', ''].includes(location.pathname)) return;
+  if (!['/', '/index', ''].includes(window.location.pathname)) return;
 
   try {
-    const res = await fetch('/api/me', { credentials: 'include' });
-    if (!res.ok) return;
+    const res = await fetch('https://eiworldtech.onrender.com/api/me', { credentials: 'include' });
+    if (res.ok) {
+      const user = await res.json();
+      const username = user.name || user.username || user.email.split('@')[0] || "Bhai";
 
-    const user = await res.json();
-    const name = user.name || user.username || user.email.split('@')[0] || "Bhai";
-
-    // Direct show toast with play button (gesture via click)
-    showWelcomeToast(name);
-
-    // If first time, show optional prompt (remove after test)
-    if (!localStorage.getItem('rajuVoiceSeen')) {
-      const prompt = document.createElement('div');
-      prompt.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;';
-      prompt.innerHTML = `
-        <div style="background:white;padding:20px;border-radius:20px;text-align:center;max-width:300px;">
-          <h3>Raju Sir bolna chahte hain!</h3>
-          <p>Toast mein 🔊 button daba ke suno</p>
-          <button onclick="this.parentElement.parentElement.remove(); localStorage.setItem('rajuVoiceSeen','true');" style="background:#4f46e5;color:white;padding:10px 20px;border-radius:10px;border:none;">Got it!</button>
-        </div>
-      `;
-      document.body.appendChild(prompt);
-    } else {
-      localStorage.setItem('rajuVoiceSeen', 'true');
+      if (voiceEnabled) {
+        // Direct toast dikhao (enable ho gaya hai)
+        showWelcomeToast(username);
+        // Voice chalao (lekin agar block ho to button se)
+        speakWelcome(`Arre ${username}! Welcome back bhai! Aaj kaunsa chapter padhna hai?`);
+      } else {
+        // Pehli baar prompt
+        pendingUsername = username;
+        document.getElementById('soundPrompt').classList.remove('hidden');
+      }
     }
-  } catch (e) {
+  } catch (err) {
     console.log("Not logged in");
   }
 });
@@ -168,19 +176,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Animation
 const style = document.createElement('style');
 style.textContent = `
-  #welcomeToast {
-    animation: bounceIn 1s ease-out;
-  }
   @keyframes bounceIn {
-    0% { transform: translateX(-50%) scale(0.3) translateY(20px); opacity: 0; }
-    50% { transform: translateX(-50%) scale(1.1); opacity: 1; }
+    0% { transform: translateX(-50%) scale(0.3); opacity: 0; }
+    50% { transform: translateX(-50%) scale(1.1); }
     70% { transform: translateX(-50%) scale(0.9); }
-    100% { transform: translateX(-50%) scale(1); }
+    100% { transform: translateX(-50%) scale(1); opacity: 1; }
   }
 `;
 document.head.appendChild(style);
 </script>
-
   <script>
   if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js")
@@ -667,6 +671,7 @@ window.addEventListener('DOMContentLoaded', loadProfileBtn);
   </script>
 </body>
 </html>
+
 
 
 
