@@ -43,7 +43,7 @@ student ai tutor
 <meta name="theme-color" content="#4CAF50">
 </head>
 <body class="bg-white w-full h-full">
-<!-- Sound Enable Prompt (Sirf pehli baar dikhega) -->
+<!-- Sound Enable Prompt (Pehli baar dikhega) -->
 <div id="soundPrompt" class="fixed inset-0 bg-black/80 z-[999] flex items-center justify-center hidden">
   <div class="bg-white rounded-3xl p-8 text-center max-w-xs shadow-2xl">
     <img src="https://i.postimg.cc/0yF9xZ8k/raju-sir-avatar.png" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-purple-600">
@@ -55,47 +55,40 @@ student ai tutor
   </div>
 </div>
 
-<!-- Welcome Toast (Ab isme Play Sound button bhi hai) -->
+<!-- Welcome Toast -->
 <div id="welcomeToast" class="hidden fixed bottom-20 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-5 rounded-3xl shadow-2xl z-50 max-w-sm border-4 border-white">
   <div class="flex items-center gap-4">
     <img src="https://i.postimg.cc/0yF9xZ8k/raju-sir-avatar.png" class="w-16 h-16 rounded-full border-4 border-white shadow-2xl" alt="Raju Sir">
-    <div class="flex-1">
+    <div>
       <p class="font-bold text-xl" id="welcomeName">Arre bhai!</p>
       <p class="text-sm opacity-90">Welcome back bhai!</p>
       <p class="text-xs mt-1 opacity-80">Aaj kaunsa chapter padhna hai?</p>
     </div>
-    <button id="playSoundBtn" class="bg-white/20 rounded-full p-2 hover:bg-white/30 transition ml-2">
-      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-      </svg>
-    </button>
   </div>
 </div>
 
 <script>
-// Global variables
-let voiceEnabled = localStorage.getItem('rajuVoiceEnabled') === 'true';
+// Global variable
+let voiceEnabled = false;
 let pendingUsername = null;
 
-// Enable sound (pehli baar)
+// Enable sound + show welcome
 async function enableSoundAndWelcome() {
   document.getElementById('soundPrompt').classList.add('hidden');
-  localStorage.setItem('rajuVoiceEnabled', 'true');  // Permanent save
   voiceEnabled = true;
 
-  // Dummy speech with text (not empty) to activate API (user gesture hai yahan)
-  const dummy = new SpeechSynthesisUtterance("hi bhai");
-  dummy.volume = 0;  // Silent, but text hai
+  // Dummy speech to activate API
+  const dummy = new SpeechSynthesisUtterance("");
   window.speechSynthesis.speak(dummy);
 
-  // Real welcome
+  // Ab real welcome
   if (pendingUsername) {
     showWelcomeToast(pendingUsername);
     speakWelcome(`Arre ${pendingUsername}! Welcome back bhai! Aaj kaunsa chapter padhna hai?`);
   }
 }
 
-// Voice function (fixed voices load)
+// Real voice function (100% working)
 function speakWelcome(text) {
   if (!voiceEnabled || !('speechSynthesis' in window)) return;
 
@@ -108,32 +101,24 @@ function speakWelcome(text) {
 
   const speakNow = () => {
     const voices = window.speechSynthesis.getVoices();
-    if (voices.length === 0) {
-      // Wait for voices (mobile Chrome fix)
-      setTimeout(speakNow, 500);
-      return;
-    }
+    if (voices.length === 0) return setTimeout(speakNow, 500);
+
     const voice = voices.find(v => v.lang.includes('hi') && v.name.toLowerCase().includes('male'))
                || voices.find(v => v.lang.includes('hi'))
                || voices[0];
     if (voice) utterance.voice = voice;
-    console.log("Voice set:", voice ? voice.name : "Default");
+
     window.speechSynthesis.speak(utterance);
   };
   speakNow();
 }
 
-// Show toast (ab button ke saath)
+// Show toast
 function showWelcomeToast(username) {
   const toast = document.getElementById('welcomeToast');
   document.getElementById('welcomeName').textContent = `Arre ${username}!`;
   toast.classList.remove('hidden');
   toast.style.animation = 'bounceIn 1s';
-
-  // Play button onclick (har reload pe gesture ke liye)
-  document.getElementById('playSoundBtn').onclick = () => {
-    speakWelcome(`Arre ${username}! Welcome back bhai! Aaj kaunsa chapter padhna hai?`);
-  };
 
   setTimeout(() => {
     toast.style.transition = 'all 0.7s';
@@ -147,29 +132,26 @@ function showWelcomeToast(username) {
   }, 6000);
 }
 
-// Main logic
+// Main welcome logic
 document.addEventListener('DOMContentLoaded', async () => {
-  if (!['/', '/index', ''].includes(window.location.pathname)) return;
+  if (['/', '/index', ''].includes(window.location.pathname)) {
+    try {
+      const res = await fetch('https://eiworldtech.onrender.com/api/me', { credentials: 'include' });
+      if (res.ok) {
+        const user = await res.json();
+        const username = user.name || user.username || user.email.split('@')[0] || "Bhai";
 
-  try {
-    const res = await fetch('https://eiworldtech.onrender.com/api/me', { credentials: 'include' });
-    if (res.ok) {
-      const user = await res.json();
-      const username = user.name || user.username || user.email.split('@')[0] || "Bhai";
-
-      if (voiceEnabled) {
-        // Direct toast dikhao (enable ho gaya hai)
-        showWelcomeToast(username);
-        // Voice chalao (lekin agar block ho to button se)
-        speakWelcome(`Arre ${username}! Welcome back bhai! Aaj kaunsa chapter padhna hai?`);
-      } else {
-        // Pehli baar prompt
-        pendingUsername = username;
-        document.getElementById('soundPrompt').classList.remove('hidden');
+        if (voiceEnabled) {
+          showWelcomeToast(username);
+          speakWelcome(`Arre ${username}! Welcome back bhai! Aaj kaunsa chapter padhna hai?`);
+        } else {
+          pendingUsername = username;
+          document.getElementById('soundPrompt').classList.remove('hidden');
+        }
       }
+    } catch (err) {
+      console.log("Not logged in");
     }
-  } catch (err) {
-    console.log("Not logged in");
   }
 });
 
@@ -671,6 +653,7 @@ window.addEventListener('DOMContentLoaded', loadProfileBtn);
   </script>
 </body>
 </html>
+
 
 
 
