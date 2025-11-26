@@ -43,112 +43,119 @@ student ai tutor
 <meta name="theme-color" content="#4CAF50">
 </head>
 <body class="bg-white w-full h-full">
-<!-- Welcome Toast with Voice (Raju Sir Style) -->
+<!-- Sound Enable Prompt (Pehli baar dikhega) -->
+<div id="soundPrompt" class="fixed inset-0 bg-black/80 z-[999] flex items-center justify-center hidden">
+  <div class="bg-white rounded-3xl p-8 text-center max-w-xs shadow-2xl">
+    <img src="https://i.postimg.cc/0yF9xZ8k/raju-sir-avatar.png" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-purple-600">
+    <p class="text-xl font-bold text-gray-800 mb-2">Raju Sir bolna chahte hain!</p>
+    <p class="text-sm text-gray-600 mb-6">Voice sunne ke liye tap karo</p>
+    <button onclick="enableSoundAndWelcome()" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:scale-105 transition">
+      Enable Voice
+    </button>
+  </div>
+</div>
+
+<!-- Welcome Toast -->
 <div id="welcomeToast" class="hidden fixed bottom-20 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-5 rounded-3xl shadow-2xl z-50 max-w-sm border-4 border-white">
   <div class="flex items-center gap-4">
-    <img src="https://cdn.dribbble.com/userupload/27341424/file/original-7526e60193cff69cba7dc1cf48a696d6.png?resize=400x0" class="w-16 h-16 rounded-full border-4 border-white shadow-2xl" alt="Raju Sir">
+    <img src="https://i.postimg.cc/0yF9xZ8k/raju-sir-avatar.png" class="w-16 h-16 rounded-full border-4 border-white shadow-2xl" alt="Raju Sir">
     <div>
       <p class="font-bold text-xl" id="welcomeName">Arre bhai!</p>
-      <p class="text-sm opacity-90">Welcome back to EiWorldAi PDF Notes!</p>
+      <p class="text-sm opacity-90">Welcome back bhai!</p>
       <p class="text-xs mt-1 opacity-80">Aaj kaunsa chapter padhna hai?</p>
     </div>
   </div>
 </div>
 
 <script>
-// FIXED & GUARANTEED VOICE FUNCTION
-function speakWelcome(text) {
-  if (!('speechSynthesis' in window)) {
-    console.log("Speech API not supported");
-    return;
+// Global variable
+let voiceEnabled = false;
+let pendingUsername = null;
+
+// Enable sound + show welcome
+async function enableSoundAndWelcome() {
+  document.getElementById('soundPrompt').classList.add('hidden');
+  voiceEnabled = true;
+
+  // Dummy speech to activate API
+  const dummy = new SpeechSynthesisUtterance("");
+  window.speechSynthesis.speak(dummy);
+
+  // Ab real welcome
+  if (pendingUsername) {
+    showWelcomeToast(pendingUsername);
+    speakWelcome(`Arre ${pendingUsername}! Welcome back bhai! Aaj kaunsa chapter padhna hai?`);
   }
+}
 
-  // Cancel previous speech
+// Real voice function (100% working)
+function speakWelcome(text) {
+  if (!voiceEnabled || !('speechSynthesis' in window)) return;
+
   window.speechSynthesis.cancel();
-
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'hi-IN';
   utterance.rate = 0.9;
   utterance.pitch = 1.1;
   utterance.volume = 1;
 
-  // Yeh function tab chalega jab voices load ho jayengi
-  function doSpeak() {
+  const speakNow = () => {
     const voices = window.speechSynthesis.getVoices();
-    if (voices.length === 0) {
-      console.log("Voices abhi load nahi hui");
-      return false;
-    }
+    if (voices.length === 0) return setTimeout(speakNow, 500);
 
-    // Best Hindi male voice select karo
-    let selectedVoice = voices.find(v => v.lang.includes('hi') && v.name.toLowerCase().includes('male'))
-                     || voices.find(v => v.lang.includes('hi'))
-                     || voices.find(v => v.name.includes('Google') || v.name.includes('Microsoft'))
-                     || voices[0];
-
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-      console.log("Raju Sir ki awaaz:", selectedVoice.name);
-    }
+    const voice = voices.find(v => v.lang.includes('hi') && v.name.toLowerCase().includes('male'))
+               || voices.find(v => v.lang.includes('hi'))
+               || voices[0];
+    if (voice) utterance.voice = voice;
 
     window.speechSynthesis.speak(utterance);
-    return true;
-  }
-
-  // Agar voices already loaded hain
-  if (doSpeak()) return;
-
-  // Warna wait karo — yeh line magic hai!
-  window.speechSynthesis.onvoiceschanged = () => {
-    console.log("Voices load ho gayi!");
-    doSpeak();
   };
-
-  // Extra safety — 2 second baad bhi try kar lo
-  setTimeout(doSpeak, 2000);
+  speakNow();
 }
 
-// Welcome with Voice (Only on index page after login)
+// Show toast
+function showWelcomeToast(username) {
+  const toast = document.getElementById('welcomeToast');
+  document.getElementById('welcomeName').textContent = `Arre ${username}!`;
+  toast.classList.remove('hidden');
+  toast.style.animation = 'bounceIn 1s';
+
+  setTimeout(() => {
+    toast.style.transition = 'all 0.7s';
+    toast.style.transform = 'translateX(-50%) translateY(150px) scale(0.8)';
+    toast.style.opacity = '0';
+    setTimeout(() => {
+      toast.classList.add('hidden');
+      toast.style.transform = 'translateX(-50%)';
+      toast.style.opacity = '1';
+    }, 700);
+  }, 6000);
+}
+
+// Main welcome logic
 document.addEventListener('DOMContentLoaded', async () => {
-  if (window.location.pathname === '/' || window.location.pathname === '/index' || window.location.pathname === '') {
+  if (['/', '/index', ''].includes(window.location.pathname)) {
     try {
       const res = await fetch('https://eiworldtech.onrender.com/api/me', { credentials: 'include' });
       if (res.ok) {
         const user = await res.json();
         const username = user.name || user.username || user.email.split('@')[0] || "Bhai";
 
-        // Show toast
-        const toast = document.getElementById('welcomeToast');
-        document.getElementById('welcomeName').textContent = `Arre ${username}!`;
-        toast.classList.remove('hidden');
-        toast.style.animation = 'bounceIn 1s';
-
-        // Speak after 1 second (voices load hone ka time)
-        setTimeout(() => {
-          const message = `Arre ${username}! Welcome back to EiWorldAi PDF Notes! Aaj kaunsa chapter padhna hai?`;
-          speakWelcome(message);
-        }, 1000);
-
-        // Auto hide after 6 seconds
-        setTimeout(() => {
-          toast.style.transition = 'all 0.7s ease-out';
-          toast.style.transform = 'translateX(-50%) translateY(150px) scale(0.8)';
-          toast.style.opacity = '0';
-          setTimeout(() => {
-            toast.classList.add('hidden');
-            toast.style.transform = 'translateX(-50%)';
-            toast.style.opacity = '1';
-          }, 700);
-        }, 6000);
-
+        if (voiceEnabled) {
+          showWelcomeToast(username);
+          speakWelcome(`Arre ${username}! Welcome back bhai! Aaj kaunsa chapter padhna hai?`);
+        } else {
+          pendingUsername = username;
+          document.getElementById('soundPrompt').classList.remove('hidden');
+        }
       }
     } catch (err) {
-      console.log("Not logged in or error — no welcome");
+      console.log("Not logged in");
     }
   }
 });
 
-// Bounce Animation
+// Animation
 const style = document.createElement('style');
 style.textContent = `
   @keyframes bounceIn {
@@ -160,7 +167,6 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 </script>
-
 
   <script>
   if ("serviceWorker" in navigator) {
@@ -648,4 +654,5 @@ window.addEventListener('DOMContentLoaded', loadProfileBtn);
   </script>
 </body>
 </html>
+
 
