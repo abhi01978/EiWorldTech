@@ -112,7 +112,7 @@ function speakWelcome(text) {
 document.addEventListener('DOMContentLoaded', async () => {
   if (window.location.pathname === '/' || window.location.pathname === '/index' || window.location.pathname === '') {
     try {
-      const res = await fetch('http://localhost:5000/api/me', { credentials: 'include' });
+      const res = await fetch('https://eiworldtech.onrender.com/api/me', { credentials: 'include' });
       if (res.ok) {
         const user = await res.json();
         const username = user.name || user.username || user.email.split('@')[0] || "Bhai";
@@ -648,3 +648,4 @@ window.addEventListener('DOMContentLoaded', loadProfileBtn);
   </script>
 </body>
 </html>
+
