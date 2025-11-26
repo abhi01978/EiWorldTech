@@ -43,8 +43,8 @@ student ai tutor
 <meta name="theme-color" content="#4CAF50">
 </head>
 <body class="bg-white w-full h-full">
-<!-- Welcome Toast with Voice (Raju Sir Style) -->
-<div id="welcomeToast" class="hidden fixed bottom-20 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-5 rounded-3xl shadow-2xl z-50 max-w-sm border-4 border-white">
+ 
+<<div id="welcomeToast" class="hidden fixed bottom-20 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-5 rounded-3xl shadow-2xl z-50 max-w-sm border-4 border-white">
   <div class="flex items-center gap-4">
     <img src="https://i.postimg.cc/0yF9xZ8k/raju-sir-avatar.png" class="w-16 h-16 rounded-full border-4 border-white shadow-2xl" alt="Raju Sir">
     <div>
@@ -123,43 +123,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         toast.classList.remove('hidden');
         toast.style.animation = 'bounceIn 1s';
 
-        // Speak after 1 second (voices load hone ka time)
-        setTimeout(() => {
-          const message = `Arre ${username}! Welcome back to EiWorldAi PDF Notes! Aaj kaunsa chapter padhna hai?`;
-          speakWelcome(message);
-        }, 1000);
-
-        // Auto hide after 6 seconds
-        setTimeout(() => {
-          toast.style.transition = 'all 0.7s ease-out';
-          toast.style.transform = 'translateX(-50%) translateY(150px) scale(0.8)';
-          toast.style.opacity = '0';
-          setTimeout(() => {
-            toast.classList.add('hidden');
-            toast.style.transform = 'translateX(-50%)';
-            toast.style.opacity = '1';
-          }, 700);
-        }, 6000);
-
-      }
-    } catch (err) {
-      console.log("Not logged in or error — no welcome");
-    }
-  }
-});
-
-// Bounce Animation
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes bounceIn {
-    0% { transform: translateX(-50%) scale(0.3); opacity: 0; }
-    50% { transform: translateX(-50%) scale(1.1); }
-    70% { transform: translateX(-50%) scale(0.9); }
-    100% { transform: translateX(-50%) scale(1); opacity: 1; }
-  }
-`;
-document.head.appendChild(style);
-</script>
   <script>
   if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js")
@@ -646,4 +609,5 @@ window.addEventListener('DOMContentLoaded', loadProfileBtn);
   </script>
 </body>
 </html>
+
 
