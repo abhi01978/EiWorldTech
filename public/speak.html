@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-900">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BoloEnglish - Free English Speaking Practice</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@readyplayer.me/avatar@1.0.0/avatar.min.js"></script>
+
+  <style>
+    body { font-family: 'Hind Siliguri', sans-serif; }
+
+    #avatar-container { 
+      position: fixed; 
+      bottom: 100px; 
+      left: 50%; 
+      transform: translateX(-50%); 
+      z-index: 50; 
+      pointer-events: none;
+    }
+
+    @media (min-width: 768px) {
+      #avatar-container { 
+        bottom: 20px; 
+        left: 20px; 
+        transform: none;
+      }
+    }
+
+    /* Chat ko input bar se overlap hone se bachane ke liye */
+    #chat {
+      padding-bottom: 140px;
+    }
+  </style>
+   <style>
+    body { font-family: 'Hind Siliguri', sans-serif; }
+
+    /* Avatar Animations */
+    .avatar-container { 
+      width: 140px; 
+      height: 140px; 
+      border-radius: 50%; 
+      overflow: hidden; 
+      margin: auto; 
+      margin-top: 20px;
+      border: 4px solid #6d28d9;
+    }
+
+    .avatar {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      animation: idle 3s infinite ease-in-out;
+    }
+
+    @keyframes idle {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+
+    /* Avatar talking animation */
+    .talking {
+      animation: talkingAnim 0.2s infinite alternate;
+    }
+
+    @keyframes talkingAnim {
+      from { transform: scale(1); }
+      to { transform: scale(1.05); }
+    }
+
+    /* Avatar listening glow */
+    .listening {
+      box-shadow: 0 0 20px #10b981;
+      border-color: #10b981 !important;
+    }
+  </style>
+</head>
+
+<body class="h-full text-white bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+
+<div class="min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <!-- <div class="bg-gradient-to-r from-purple-600 to-blue-700 p-5 text-center shadow-2xl">
+    <h1 class="text-4xl font-bold tracking-tight">BoloEnglish</h1>
+    <p class="text-lg mt-1 opacity-90">Hindi mein bolo → English mein suno aur sikho!</p>
+  </div> -->
+
+  <!-- Layout: Avatar + Chat -->
+  <div class="flex-1 flex flex-col md:flex-row relative">
+
+    <!-- Fixed Avatar -->
+   
+  <!-- Avatar -->
+  <div class="avatar-container" id="avatarBox">
+    <img id="avatar" class="avatar" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRic-eNbli8glNAQCrciRZQ79TRGNlQyUIunv5m5P6ET7jfnTeVMYbOz0L0a2dco3bOxZ8&usqp=CAU">
+  </div>
+
+    <!-- FIXED CHAT BOX (THIS IS NOW CORRECT) -->
+    <div id="chat" 
+         class="p-4 md:p-8 space-y-4 max-w-4xl mx-auto w-full md:ml-64 lg:ml-72 overflow-y-auto"
+         style="height: calc(100vh - 200px);">
+      <div class="text-center text-gray-400 text-sm mt-10">
+        Raju Sir aapki madad karne ke liye taiyar hain! 🎙️
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Input Bar -->
+ <div class="fixed bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-xl border-t border-gray-700 p-3">
+  <div class="max-w-4xl mx-auto flex items-center gap-3">
+
+    <!-- MIC -->
+    <button id="micBtn"
+      class="w-12 h-12 flex items-center justify-center rounded-full bg-red-600 hover:bg-red-700 active:scale-95 transition shadow-lg flex-shrink-0">
+      <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4z"/>
+        <path d="M6 12h2v4a2 2 0 104 0v-4h2"/>
+      </svg>
+    </button>
+
+    <!-- Input Box Beautiful -->
+    <div class="flex-1 bg-gray-800 rounded-full px-5 py-3 flex items-center gap-2 min-w-0">
+
+      <input id="textInput"
+        placeholder="Type or speak..."
+        class="flex-1 bg-transparent outline-none text-lg min-w-0 text-white"/>
+
+    </div>
+
+    <!-- SEND -->
+    <button id="sendBtn"
+      class="w-12 h-12 flex items-center justify-center bg-purple-600 hover:bg-purple-700 rounded-full active:scale-95 transition shadow-lg flex-shrink-0">
+      <svg class="w-7 h-7 rotate-45" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M2.94 2.94a1.5 1.5 0 012.12 0L17.06 14.94a1.5 1.5 0 01-1.06 2.56H11l-3 3v-6H3.5A1.5 1.5 0 012.94 2.94z"/>
+      </svg>
+    </button>
+
+  </div>
+</div>
+
+
+</div>
+
+
+<!-- ====================================================== -->
+<!-- ==================== JAVASCRIPT ====================== -->
+<!-- ====================================================== -->
+
+<script>
+const chat = document.getElementById('chat');
+const micBtn = document.getElementById('micBtn');
+const textInput = document.getElementById('textInput');
+const sendBtn = document.getElementById('sendBtn');
+const avatar = document.getElementById("avatar");
+const avatarBox = document.getElementById("avatarBox");
+
+let recognition;
+let isRecognizing = false;
+let isTalking = false;
+
+// ===================== SPEECH RECOGNITION =====================
+if ("webkitSpeechRecognition" in window) {
+  recognition = new webkitSpeechRecognition();
+  recognition.lang = "hi-IN";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onstart = () => {
+    isRecognizing = true;
+    micBtn.classList.add('animate-ping');
+    avatarBox?.classList.add("listening");
+  };
+
+  recognition.onend = () => {
+    micBtn.classList.remove('animate-ping');
+    avatarBox?.classList.remove("listening");
+    isRecognizing = false;
+  };
+
+  recognition.onresult = (e) => {
+    const text = e.results[0][0].transcript.trim();
+    addMessage("आप: " + text, true);
+    sendToBackend(text);
+  };
+}
+
+// ===================== ROMAN PRONUNCIATION FIXER (Student ke liye perfect!) =====================
+function fixRomanPronunciation(line) {
+  return line
+    .replace(/\bkha\b/gi, "kahaan")           // कha → kahaan
+    .replace(/\bja rhe\b/gi, "jaa rahe")      // ja rhe → jaa rahe
+    .replace(/\bja raha\b/gi, "jaa raha")     // ja raha → jaa raha
+    .replace(/\bja rhi\b/gi, "jaa rahi")
+    .replace(/\bja rhe ho\b/gi, "jaa rahe ho")
+    .replace(/\bkha raha\b/gi, "khaa raha")   // खा रहा → khaa raha
+    .replace(/\bkha rahi\b/gi, "khaa rahi")
+    .replace(/\bkha rahe\b/gi, "khaa rahe")
+    .replace(/\bkha rhe\b/gi, "khaa rahe")
+    .replace(/\btheek\b/gi, "theek")          // ठीक
+    .replace(/\bdhanyavad\b/gi, "dhanyavaad")
+    .replace(/\baap\b/gi, "aap")
+    .replace(/\bmain\b/gi, "main")
+    .replace(/\bmein\b/gi, "main")
+    .replace(/\bhoon\b/gi, "hoon")
+    .replace(/\bhai\b/gi, "hai")
+    .trim();
+}
+
+// ===================== ADD MESSAGE (Beautiful 3-line format) =====================
+function addMessage(text, isUser = false) {
+  const div = document.createElement('div');
+  div.className = `p-5 rounded-2xl max-w-lg shadow-xl my-4 ${isUser 
+    ? 'bg-blue-600 ml-auto text-right' 
+    : 'bg-gradient-to-r from-purple-600 to-pink-600 mr-auto'}`;
+
+  if (!isUser && text.includes('\n')) {
+    const lines = text.split('\n');
+    div.innerHTML = `
+      <div class="text-lg font-semibold text-yellow-200">${lines[0]}</div>
+      <div class="text-xl mt-2">${lines[1]}</div>
+      <div class="text-sm mt-2 opacity-90 italic">${fixRomanPronunciation(lines[2] || "")}</div>
+    `;
+  } else {
+    div.textContent = text;
+  }
+
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+// ===================== SPEAK ONLY ENGLISH =====================
+function speak(englishText) {
+  if (speechSynthesis.speaking || speechSynthesis.pending) {
+    speechSynthesis.cancel();
+  }
+
+  setTimeout(() => {
+    isTalking = true;
+    const utter = new SpeechSynthesisUtterance(englishText.trim());
+    utter.lang = 'en-IN';
+    utter.rate = 0.85;
+    utter.pitch = 1;
+    utter.volume = 1;
+
+    utter.onstart = () => {
+      avatar?.classList.add("talking");
+      avatarBox?.classList.add("talking");
+    };
+
+    utter.onend = () => {
+      avatar?.classList.remove("talking");
+      avatarBox?.classList.remove("talking");
+      isTalking = false;
+    };
+
+    speechSynthesis.speak(utter);
+  }, 100);
+}
+
+// ===================== BUTTONS =====================
+micBtn.addEventListener('click', () => {
+  if (!recognition) return alert("Bhai, Chrome browser use karo!");
+  if (isRecognizing || isTalking) return;
+  recognition.start();
+});
+
+sendBtn.addEventListener('click', () => {
+  const msg = textInput.value.trim();
+  if (!msg || isTalking) return;
+  addMessage("आप: " + msg, true);
+  sendToBackend(msg);
+  textInput.value = "";
+});
+
+textInput.addEventListener('keypress', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendBtn.click();
+  }
+});
+
+// ===================== BACKEND CALL (PERFECT FIX) =====================
+async function sendToBackend(message) {
+  if (isTalking) return;
+
+  addMessage("Raju Sir soch rahe hain...", false);
+
+  try {
+    const res = await fetch("http://localhost:5000/api/speak", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message })
+    });
+
+    const data = await res.json();
+    let reply = data.reply || "Sorry, kuch samajh nahi aaya.";
+
+    // Remove thinking message
+    if (chat.lastElementChild) {
+      chat.lastElementChild.remove();
+    }
+
+    // Add final reply with perfect Roman
+    addMessage(reply, false);
+
+    // Speak only English line
+    const englishLine = reply.split("\n")[0].trim();
+    speak(englishLine);
+
+  } catch (error) {
+    console.error(error);
+    if (chat.lastElementChild) {
+      chat.lastElementChild.textContent = "Internet slow hai bhai, thodi der mein try karo!";
+    }
+    isTalking = false;
+  }
+}
+</script>
+</body>
+</html>

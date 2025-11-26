@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Profile</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-4">
+  <div class="max-w-4xl mx-auto">
+
+    <!-- PROFILE HEADER -->
+    <div class="bg-white rounded-3xl shadow-lg p-6 flex items-center gap-6 mb-6">
+      <img id="userImage" src="https://via.placeholder.com/150"
+           class="w-24 h-24 rounded-full object-cover shadow-md" />
+
+      <div class="flex-1">
+        <h1 id="userName" class="text-2xl font-bold text-gray-800"></h1>
+        <p id="userEmail" class="text-gray-500 text-sm mb-2"></p>
+
+        <div class="flex gap-6 mt-2">
+
+          <div class="text-center cursor-pointer" onclick="openPopup('followers')">
+            <p id="followersCount" class="font-bold text-gray-800">0</p>
+            <p class="text-gray-500 text-sm">Followers</p>
+          </div>
+
+          <div class="text-center cursor-pointer" onclick="openPopup('following')">
+            <p id="followingCount" class="font-bold text-gray-800">0</p>
+            <p class="text-gray-500 text-sm">Following</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- RESOURCES SECTION -->
+    <h2 class="mt-8 text-xl font-bold text-gray-800 mb-3">Your Study Resources</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+
+      <div class="bg-white shadow-md rounded-xl p-5 flex flex-col items-center hover:scale-105 transition cursor-pointer">
+        <span class="text-4xl">📄</span>
+        <p class="mt-2 font-semibold text-gray-700">PDF Notes</p>
+      </div>
+
+      <div class="bg-white shadow-md rounded-xl p-5 flex flex-col items-center hover:scale-105 transition cursor-pointer">
+        <span class="text-4xl">📝</span>
+        <p class="mt-2 font-semibold text-gray-700">Assignments</p>
+      </div>
+
+      <div class="bg-white shadow-md rounded-xl p-5 flex flex-col items-center hover:scale-105 transition cursor-pointer">
+        <span class="text-4xl">🎥</span>
+        <p class="mt-2 font-semibold text-gray-700">Video Lectures</p>
+      </div>
+
+      <div class="bg-white shadow-md rounded-xl p-5 flex flex-col items-center hover:scale-105 transition cursor-pointer">
+        <span class="text-4xl">📚</span>
+        <p class="mt-2 font-semibold text-gray-700">Study Material</p>
+      </div>
+
+      <div class="bg-white shadow-md rounded-xl p-5 flex flex-col items-center hover:scale-105 transition cursor-pointer">
+        <span class="text-4xl">🧠</span>
+        <p class="mt-2 font-semibold text-gray-700">MCQs</p>
+      </div>
+
+      <div class="bg-white shadow-md rounded-xl p-5 flex flex-col items-center hover:scale-105 transition cursor-pointer">
+        <span class="text-4xl">📊</span>
+        <p class="mt-2 font-semibold text-gray-700">Reports</p>
+      </div>
+
+    </div>
+
+    <!-- USERS LIST -->
+    <h2 class="mt-10 text-xl font-bold text-gray-800 mb-3">All Users</h2>
+    <div id="userList" class="space-y-3"></div>
+  </div>
+
+
+  <!-- POPUP FOR FOLLOW / FOLLOWING -->
+  <div id="popup" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-md p-5 shadow-lg">
+      <div class="flex justify-between items-center mb-4">
+        <h3 id="popupTitle" class="text-lg font-bold"></h3>
+        <button onclick="closePopup()" class="text-gray-500 text-xl">✖</button>
+      </div>
+
+      <div id="popupList" class="space-y-3 max-h-80 overflow-y-auto"></div>
+    </div>
+  </div>
+
+<br><br>
+<br>
+<!-- Bottom Nav (Fixed) -->
+<nav class="fixed bottom-0 left-0 w-full border-t bg-white flex justify-around items-center py-3 text-xs text-gray-500">
+  
+  <!-- Home -->
+  <button class="flex flex-col items-center">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10"/>
+    </svg>
+    Home
+  </button>
+
+  <!-- Tools -->
+  <button class="flex flex-col items-center">
+    <a href="./news.html" class="flex flex-col items-center"><img src="https://img.icons8.com/ios-filled/50/666666/task.png" class="w-6"/><span>News</span></a>
+  
+  </button>
+
+  <!-- Center Start Button -->
+<a href="./scan.html">  <button class="flex items-center justify-center w-14 h-14 bg-red-500 text-white rounded-full -mt-7 shadow-lg text-3xl font-bold">
+    +
+  </button></a>
+
+  <!-- Saved -->
+  <button class="flex flex-col items-center">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+    </svg>
+    Saved
+  </button>
+
+  <!-- Profile -->
+ <!-- Profile Button -->
+<button id="profileBtn" class="flex flex-col items-center">
+  <!-- Default icon shown if user not logged in -->
+  <svg id="defaultIcon" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A4 4 0 017 17h10a4 4 0 011.879.804M12 14a4 4 0 100-8 4 4 0 000 8z"/>
+  </svg>
+
+  <!-- Hidden by default, shown only if logged in -->
+  <img id="profileImg" src="" alt="Profile" class="w-6 h-6 mb-1 rounded-full object-cover hidden">
+
+  <span id="profileName">Profile</span>
+</button>
+
+
+</nav>
+
+<script>
+let currentUser = null;
+
+// Extract profile ID from URL
+const urlParts = window.location.pathname.split("/");
+const profileId = urlParts[urlParts.length - 1];
+const isViewingOwnProfile = profileId.length !== 24;
+
+// ---------------- CURRENT USER PROFILE ----------------
+async function loadCurrentUser() {
+  const res = await fetch('/api/me');
+  const user = await res.json();
+  currentUser = user;
+
+  if (!currentUser.following) currentUser.following = [];
+
+  document.getElementById('userName').textContent = user.name;
+  document.getElementById('userEmail').textContent = user.email;
+  document.getElementById('userImage').src = user.profileImage || '/default.png';
+  document.getElementById('followersCount').textContent = user.followersCount;
+  document.getElementById('followingCount').textContent = user.followingCount;
+
+  loadUsers();
+}
+
+// ---------------- OTHER USER PROFILE ----------------
+async function loadProfileUser() {
+  const res = await fetch(`/api/user/${profileId}`);
+  const user = await res.json();
+
+  document.getElementById('userName').textContent = user.name;
+  document.getElementById('userEmail').textContent = user.email;
+  document.getElementById('userImage').src = user.profileImage || '/default.png';
+
+  document.getElementById('followersCount').textContent = user.followers.length;
+  document.getElementById('followingCount').textContent = user.following.length;
+
+  document.getElementById("userList").style.display = "none";
+}
+
+
+// ---------------- USERS LIST ----------------
+function loadUsers() {
+  fetch('/api/users')
+    .then(res => res.json())
+    .then(users => {
+      const container = document.getElementById('userList');
+      container.innerHTML = '';
+
+      users
+        .filter(u => u._id !== currentUser._id)
+        .forEach(u => {
+          const isFollowing = currentUser.following.includes(u._id);
+
+          // Create user card div
+          const userCard = document.createElement('div');
+          userCard.className = "bg-white p-4 rounded-xl shadow flex items-center justify-between cursor-pointer";
+
+          userCard.innerHTML = `
+            <div class="flex items-center gap-3">
+              <img src="${u.profileImage || './default.png'}"
+                class="w-12 h-12 rounded-full object-cover" />
+
+              <div>
+                <p class="font-semibold text-gray-700">${u.name}</p>
+                <p class="text-gray-500 text-xs">${u.email}</p>
+                <p class="text-gray-500 text-xs">
+                  Followers: <span id="followers-${u._id}">${u.followers.length || 0}</span>
+                </p>
+              </div>
+            </div>
+
+            <button class="px-4 py-2 bg-yellow-400 text-white rounded-lg"
+              onclick="toggleFollow('${u._id}', this)">
+              ${isFollowing ? 'Unfollow' : 'Follow'}
+            </button>
+          `;
+
+          // Click on the card → go to profile
+          userCard.addEventListener('click', (e) => {
+            // Ignore clicks on follow/unfollow button
+            if (e.target.tagName.toLowerCase() !== 'button') {
+              window.location.href = `/profile/${u._id}`;
+            }
+          });
+
+          container.appendChild(userCard);
+        });
+    });
+}
+
+
+
+// ---------------- FOLLOW / UNFOLLOW ----------------
+async function toggleFollow(userId, btn) {
+  const res = await fetch(`/api/toggle-follow/${userId}`, { method: 'POST' });
+  const data = await res.json();
+  if (data.success) {
+    btn.textContent = data.following ? 'Unfollow' : 'Follow';
+    document.getElementById(`followers-${userId}`).textContent = data.followersCount;
+  }
+}
+
+
+
+// ---------------- POPUP ----------------
+function openPopup(type) {
+  const finalUserId = isViewingOwnProfile ? currentUser?._id : profileId;
+
+  fetch(`/api/${type}/${finalUserId}`)
+    .then(res => res.json())
+    .then(list => {
+      if (!Array.isArray(list)) {
+        console.error("Invalid response:", list);
+        return;
+      }
+
+      document.getElementById("popupTitle").textContent =
+        type === "followers" ? "Followers" : "Following";
+
+      const popupList = document.getElementById("popupList");
+      popupList.innerHTML = "";
+
+      if (list.length === 0) {
+        popupList.innerHTML =
+          `<p class="text-center text-gray-500 py-6">No ${type} yet.</p>`;
+        document.getElementById("popup").classList.remove("hidden");
+        return;
+      }
+
+      list.forEach(user => {
+        popupList.innerHTML += `
+          <div class="flex items-center justify-between bg-gray-100 p-3 rounded-xl cursor-pointer"
+            onclick="openUserProfile('${user._id}')">
+            <div class="flex items-center gap-3">
+              <img src="${user.profileImage || '/default.png'}"
+                class="w-10 h-10 rounded-full object-cover">
+
+              <div>
+                <p class="font-semibold">${user.name}</p>
+                <p class="text-xs text-gray-500">${user.email}</p>
+              </div>
+            </div>
+            ➤
+          </div>
+        `;
+      });
+
+      document.getElementById("popup").classList.remove("hidden");
+    });
+}
+
+function closePopup() {
+  document.getElementById("popup").classList.add("hidden");
+}
+
+function openUserProfile(userId) {
+  window.location.href = `/profile/${userId}`;
+}
+
+
+// ---------------- INIT ----------------
+document.addEventListener("DOMContentLoaded", () => {
+  if (isViewingOwnProfile) {
+    loadCurrentUser();
+  } else {
+    loadProfileUser();
+  }
+});
+</script>
+
+
+</body>
+</html>

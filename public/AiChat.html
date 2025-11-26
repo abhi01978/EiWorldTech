@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>AI Chat</title>
+</head>
+<body class="bg-gray-100 h-screen w-full flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-white shadow-md p-4 flex items-center justify-between">
+    <h1 class="text-xl font-bold text-gray-800">AI Chat</h1>
+    <button class="p-2 rounded-full bg-gray-200">⚙️</button>
+  </header>
+
+  <!-- Chat Area -->
+  <main id="chatContainer" class="flex-1 overflow-y-auto p-4 space-y-4">
+    <!-- Example Messages -->
+    <div class="flex items-start gap-3">
+      <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
+      <div class="bg-white p-3 rounded-2xl shadow max-w-[75%]">
+        <p class="text-gray-800 text-sm">Hello! I'm your AI assistant. How can I help you today?</p>
+      </div>
+    </div>
+
+    <div class="flex items-start gap-3 justify-end">
+      <div class="bg-blue-500 text-white p-3 rounded-2xl shadow max-w-[75%]">
+        <p class="text-sm">Tell me something awesome!</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Input Area -->
+  <div class="p-4 bg-white shadow-lg flex items-center gap-3">
+    <input id="userInput" type="text" placeholder="Ask something..." class="flex-1 p-3 bg-gray-100 rounded-xl outline-none" />
+    <button onclick="sendMessage()" class="p-3 bg-blue-500 text-white rounded-xl">Send</button>
+  </div>
+
+
+<script>
+// SEND MESSAGE FUNCTION
+async function sendMessage() {
+  const input = document.getElementById('userInput');
+  const chat = document.getElementById('chatContainer');
+  const text = input.value.trim();
+  if (!text) return;
+
+  // Show user message
+  const userMsg = document.createElement('div');
+  userMsg.className = "flex items-start gap-3 justify-end";
+  userMsg.innerHTML = `
+    <div class="bg-blue-500 text-white p-3 rounded-2xl shadow max-w-[75%]">
+      <p class="text-sm">${text}</p>
+    </div>`;
+  chat.appendChild(userMsg);
+  chat.scrollTop = chat.scrollHeight;
+
+  input.value = "";
+
+  // CALL GEMINI API
+  const reply = await getAIResponse(text);
+
+  // Show AI response
+  const aiMsg = document.createElement('div');
+  aiMsg.className = "flex items-start gap-3";
+  aiMsg.innerHTML = `
+    <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
+    <div class="bg-white p-3 rounded-2xl shadow max-w-[75%]">
+      <p class="text-gray-800 text-sm">${reply}</p>
+    </div>`;
+  chat.appendChild(aiMsg);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+// GEMINI API LOGIC
+async function getAIResponse(prompt) {
+  try {
+    const response = await fetch('/api/gemini', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+
+    const data = await response.json();
+    return data.reply || "Error: No response";
+  } catch (err) {
+    return "Something went wrong!";
+  }
+}
+</script>
+
+</body>
+</html>

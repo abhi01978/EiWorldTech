@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <!-- Basic Meta -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<!-- SEO Title -->
+<title>EiWorldAi - AI Powered Learning, MCQs, Notes & Video Lectures</title>
+
+<!-- Meta Description -->
+<meta name="description" content="EiWorldAi is your personal AI-powered learning platform. Access MCQ practice, PDF notes, video lectures, previous year papers, and AI-powered doubt chat to boost your learning experience.">
+
+<!-- Keywords -->
+<meta name="keywords" content="EiWorldAi, AI study buddy, online learning, MCQ practice, PDF notes, video lectures, previous year papers, AI tutor, smart quiz, doubt chat, AI education, study app">
+
+<!-- Open Graph / Social Media -->
+<meta property="og:title" content="EiWorldAi - Your Personal AI Learning Companion" />
+<meta property="og:description" content="Boost your learning with EiWorldAi: AI-powered MCQs, notes, video lectures, and doubt solving. Join EiWorldAi today!" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://studentquery.onrender.com/" />
+<meta property="og:image" content="https://studentquery.onrender.com/og-image.png" />
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="EiWorldAi - AI Powered Learning" />
+<meta name="twitter:description" content="Access MCQs, notes, video lectures, and AI-powered doubt chat. Study smarter with EiWorldAi!" />
+<meta name="twitter:image" content="https://studentquery.onrender.com/og-image.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #f3f4f6; }
+    .news-card { 
+      background: #fff; 
+      padding: 1rem; 
+      margin: 1rem 0; 
+      border-radius: 0.75rem; 
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: transform 0.2s;
+    }
+    .news-card:hover { transform: translateY(-5px); }
+    .news-card a { text-decoration: none; color: #1d4ed8; font-weight: 600; }
+    .news-card img { border-radius: 0.5rem; width: 100%; max-height: 180px; object-fit: cover; margin-bottom: 0.5rem; }
+    .category-btn { 
+      flex: none; 
+      margin-right: 0.5rem; 
+      padding: 0.5rem 1.25rem; 
+      border-radius: 9999px; 
+      border: 1px solid #1d4ed8; 
+      background: white; 
+      color: #1d4ed8; 
+      cursor: pointer; 
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .category-btn.active { 
+      background: #1d4ed8; 
+      color: white; 
+    }
+  </style>
+</head>
+<body class="max-w-5xl mx-auto p-4">
+
+ <!-- Header -->
+  <header class="text-center mb-6">
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-blue-800">Student News Hub</h1>
+    <p class="text-gray-600 mt-2">Stay updated with the latest in education, technology, and more</p>
+  </header>
+  <!-- Categories Slider -->
+  <div class="overflow-x-auto mb-4">
+    <div id="category-slider" class="flex space-x-2 px-2">
+      <button class="category-btn active" data-category="technology">Technology</button>
+      <button class="category-btn" data-category="science">Science</button>
+      <button class="category-btn" data-category="education">Education</button>
+      <button class="category-btn" data-category="AI">AI / ML</button>
+      <button class="category-btn" data-category="sports">Sports</button>
+      <button class="category-btn" data-category="exams">Exam Updates</button>
+      <button class="category-btn" data-category="career">Career Tips</button>
+      <button class="category-btn" data-category="scholarships">Scholarships</button>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="mb-6 flex justify-center">
+    <input type="text" id="search-input" placeholder="Search topic..." class="border p-2 rounded w-64 shadow-sm" />
+    <button id="search-btn" class="ml-2 bg-blue-600 text-white px-4 rounded hover:bg-blue-700 shadow">Search</button>
+  </div>
+
+  <div id="news-container"></div>
+
+  <script>
+    let currentCategory = 'technology';
+    const categoryButtons = document.querySelectorAll('.category-btn');
+
+    async function fetchNews(topic) {
+      const category = topic || currentCategory;
+      const RSS_URL = encodeURIComponent(`https://news.google.com/rss/search?q=${category}&hl=en-IN&gl=IN&ceid=IN:en`);
+      const API_URL = `https://api.rss2json.com/v1/api.json?rss_url=${RSS_URL}`;
+      const container = document.getElementById("news-container");
+      container.innerHTML = "<p class='text-gray-500 text-center'>Loading news...</p>";
+
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+
+        let newsItems = data.items.map(item => ({
+          title: item.title,
+          link: item.link,
+          pubDate: new Date(item.pubDate),
+          thumbnail: item.thumbnail || 'https://via.placeholder.com/400x200?text=No+Image',
+          description: item.description ? item.description.replace(/<[^>]+>/g,'').substring(0,120)+'...' : ''
+        }));
+        newsItems.sort((a,b) => b.pubDate - a.pubDate);
+
+        container.innerHTML = "";
+        newsItems.slice(0, 10).forEach(item => {
+          container.innerHTML += `
+            <div class="news-card">
+              <img src="${item.thumbnail}" alt="Thumbnail">
+              <a href="${item.link}" target="_blank">${item.title}</a>
+              <p class="text-gray-600 mt-1">${item.description}</p>
+              <p class="text-sm text-gray-500 mt-1">${item.pubDate.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}</p>
+            </div>
+          `;
+        });
+
+      } catch (error) {
+        console.error("Error fetching news:", error);
+        container.innerHTML = "<p class='text-red-500 text-center'>Failed to load news. Try again later.</p>";
+      }
+    }
+
+    // Initial fetch
+    fetchNews();
+
+    // Auto refresh every 5 minutes
+    setInterval(() => fetchNews(), 5 * 60 * 1000);
+
+    // Category button click
+    categoryButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        categoryButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCategory = btn.dataset.category;
+        fetchNews();
+      });
+    });
+
+    // Search button
+    document.getElementById('search-btn').addEventListener('click', () => {
+      const searchTerm = document.getElementById('search-input').value.trim();
+      if(searchTerm) {
+        fetchNews(searchTerm);
+        categoryButtons.forEach(b => b.classList.remove('active'));
+      }
+    });
+
+    // Enter key for search
+    document.getElementById('search-input').addEventListener('keypress', (e) => {
+      if(e.key === 'Enter') document.getElementById('search-btn').click();
+    });
+  </script>
+
+<br><br><br>
+  <!-- Bottom Nav (tera wahi purana) -->
+   <div class="fixed bottom-0 left-0 right-0 bg-white border-t py-3 flex justify-around text-gray-700 text-xs z-50">
+
+  <!-- Home -->
+  <a href="index.html" class="flex flex-col items-center">
+    <img src="https://img.icons8.com/ios-filled/50/666666/home.png" class="w-6" />
+    <span>Home</span>
+  </a>
+
+  <!-- MCQ -->
+  <a href="/new.html" class="flex flex-col items-center">
+    <img src="https://img.icons8.com/ios-filled/50/666666/task.png" class="w-6" />
+    <span>News</span>
+  </a>
+
+  <!-- Floating + Button -->
+ <a href="./scan.html"> <div class="relative -top-6">
+    <div class="w-16 h-16 bg-[#0A3E87] text-white rounded-full flex justify-center items-center text-4xl shadow-2xl">
+      +
+    </div>
+  </div></a>
+
+  <!-- Notes (ACTIVE PAGE) -->
+  <a href="notes.html" class="flex flex-col items-center">
+    <img src="https://img.icons8.com/ios-filled/50/3b82f6/book.png" class="w-6" />
+    <span class="text-blue-600 font-bold">Notes</span>
+  </a>
+
+  <!-- Profile -->
+  <a href="profile.html" class="flex flex-col items-center relative">
+
+    <!-- Default Icon -->
+    <div id="bottomProfileIcon" class="flex flex-col items-center">
+      <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      </svg>
+    </div>
+
+    <!-- Profile Image -->
+    <img id="bottomProfileImg"
+      class="rounded-full border-4 border-white shadow-xl absolute -top-5 left-1/2 -translate-x-1/2 hidden h-12 w-12 mt-4"
+      alt="Profile" />
+
+    <!-- Text -->
+    <span class="mt-2">Profile</span>
+  </a>
+
+</div>
+
+</body>
+</html>

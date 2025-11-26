@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Topper Notes AI ⚡</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+          animation: { 'float': 'float 6s ease-in-out infinite', 'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite' },
+          keyframes: { float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-20px)' } } }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.4); border-radius: 4px; }
+    textarea::placeholder { opacity: 0.6; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:to-black min-h-screen transition-all duration-500">
+
+  <!-- Dark Mode Toggle -->
+  <div class="fixed top-6 right-6 z-50">
+    <button id="themeToggle" class="p-3 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg shadow-xl border border-gray-200 dark:border-gray-700 hover:scale-110 transition">
+      <span class="sun hidden dark:inline">🌞</span>
+      <span class="moon dark:hidden">🌙</span>
+    </button>
+  </div>
+
+  <div class="min-h-screen flex items-center justify-center p-6">
+    <div class="max-w-5xl w-full">
+
+      <!-- Header -->
+      <div class="text-center mb-10 animate-fade-in">
+        <h1 class="text-5xl md:text-6xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          Topper Notes AI ⚡
+        </h1>
+        <p class="mt-4 text-lg text-gray-600 dark:text-gray-400">Paste notes → Get IIT/NEET level summary in seconds!</p>
+      </div>
+
+      <!-- Main Card -->
+      <div class="backdrop-blur-xl bg-white/70 dark:bg-gray-900/90 rounded-3xl shadow-2xl border border-white/20 dark:border-gray-800 overflow-hidden">
+        
+        <!-- Floating Decor -->
+        <div class="absolute -top-20 -right-20 w-72 h-72 bg-purple-400/30 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div class="absolute -bottom-20 -left-20 w-80 h-80 bg-pink-400/30 rounded-full blur-3xl animate-pulse-slow"></div>
+
+        <div class="p-8 md:p-10 relative">
+
+          <!-- Input Area -->
+          <div class="mb-6">
+            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+              <span>📝 Student Notes / Lecture</span>
+              <span class="text-xs bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded-full">Max 15k chars</span>
+            </label>
+            <textarea 
+              id="inputText" 
+              rows="10" 
+              class="mt-3 w-full rounded-2xl border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm px-5 py-4 text-gray-800 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-4 focus:ring-indigo-500/30 focus:border-indigo-500 transition shadow-inner resize-none"
+              placeholder="Yahan apne messy notes paste kar do bhai... chapter, lecture, PDF text, kuch bhi chalega!"></textarea>
+          </div>
+
+          <!-- Controls -->
+          <div class="flex flex-wrap gap-4 items-center">
+            <select id="preset" class="px-5 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:ring-4 focus:ring-purple-500/30">
+              <option value="topper">🚀 Topper Style (Recommended)</option>
+              <option value="concise">📄 Concise Summary</option>
+              <option value="detailed">📚 Detailed Notes</option>
+              <option value="qa">❓ 5 Q&A for Revision</option>
+            </select>
+
+            <div class="flex gap-3 ml-auto">
+              <button id="clearBtn" class="px-6 py-3 rounded-xl bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition font-medium">Clear</button>
+              <button id="summarizeBtn" class="px-8 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition flex items-center gap-2">
+                <span>Generate Magic ✨</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Loader -->
+          <div id="loader" class="mt-8 hidden">
+            <div class="flex flex-col items-center gap-4">
+              <div class="relative">
+                <div class="w-20 h-20 border-8 border-indigo-200 dark:border-gray-700 rounded-full animate-spin"></div>
+                <div class="absolute inset-0 w-20 h-20 border-t-8 border-purple-600 rounded-full animate-spin"></div>
+              </div>
+              <p class="text-lg font-medium text-gray-700 dark:text-gray-300 animate-pulse">Topper banne ka process chal raha hai... 🧠</p>
+            </div>
+          </div>
+
+          <!-- Result Section -->
+          <section id="resultSection" class="mt-10 hidden animate-fade-in">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Tera Topper Notes Ready Hai! 🔥</h2>
+              <div class="flex gap-3">
+                <button id="copyBtn" class="px-5 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-700 transition flex items-center gap-2">
+                  📋 Copy
+                </button>
+                <button id="downloadPdfBtn" class="px-5 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-medium hover:shadow-lg transform hover:scale-105 transition flex items-center gap-2">
+                  📥 Download PDF
+                </button>
+              </div>
+            </div>
+
+            <div id="summaryBox" class="min-h-96 p-6 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-gray-800 dark:to-gray-900 rounded-2xl border border-indigo-200 dark:border-gray-700 backdrop-blur-sm text-gray-800 dark:text-gray-200 leading-relaxed text-lg font-medium"></div>
+
+            <!-- Debug Toggle -->
+            <details class="mt-6">
+              <summary class="cursor-pointer text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium">⚙️ Show Raw AI Response (Dev Mode)</summary>
+              <pre id="rawResponse" class="mt-3 p-4 bg-black/50 rounded-xl text-xs text-gray-400 overflow-auto max-h-64 font-mono"></pre>
+            </details>
+          </section>
+
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="text-center mt-10 text-gray-500 dark:text-gray-400 text-sm">
+        Made with ❤️ for students | Works best with Gemini 1.5 Flash | <span class="text-indigo-600 dark:text-indigo-400">100% Free & Fast</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme Toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+    themeToggle.addEventListener('click', () => {
+      html.classList.toggle('dark');
+      localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+    });
+    if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      html.classList.add('dark');
+    }
+
+    // Rest of your existing JS (same as before, just cleaner)
+    const summarizeBtn = document.getElementById('summarizeBtn');
+    const inputText = document.getElementById('inputText');
+    const preset = document.getElementById('preset');
+    const resultSection = document.getElementById('resultSection');
+    const summaryBox = document.getElementById('summaryBox');
+    const rawResponse = document.getElementById('rawResponse');
+    const loader = document.getElementById('loader');
+    const copyBtn = document.getElementById('copyBtn');
+    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+    const clearBtn = document.getElementById('clearBtn');
+
+    clearBtn.addEventListener('click', () => {
+      inputText.value = '';
+      resultSection.classList.add('hidden');
+      summaryBox.textContent = '';
+      rawResponse.textContent = '';
+    });
+
+    summarizeBtn.addEventListener('click', async () => {
+      const text = inputText.value.trim();
+      if (!text) return alert('Bhai notes daal pehle! 😅');
+
+      const summaryType = preset.value;
+      const prompt = makePrompt(text, summaryType);
+
+      loader.classList.remove('hidden');
+      summarizeBtn.disabled = true;
+      summarizeBtn.innerHTML = '<span>Generating...</span>';
+
+      try {
+        const resp = await fetch('/api/summarize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, summaryType })
+        });
+
+        const data = await resp.json();
+        const aiText = data.summary || data.notes || data.result || 'Error ho gaya bhai...';
+
+        summaryBox.textContent = aiText;
+        rawResponse.textContent = JSON.stringify(data.raw || data, null, 2);
+        resultSection.classList.remove('hidden');
+        resultSection.scrollIntoView({ behavior: 'smooth' });
+
+      } catch (err) {
+        console.error(err);
+        alert('Server down hai ya API key issue — console check kar!');
+      } finally {
+        loader.classList.add('hidden');
+        summarizeBtn.disabled = false;
+        summarizeBtn.innerHTML = '<span>Generate Magic ✨</span>';
+      }
+    });
+
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(summaryBox.textContent);
+      copyBtn.textContent = 'Copied! ✅';
+      setTimeout(() => copyBtn.innerHTML = '📋 Copy', 2000);
+    });
+
+    downloadPdfBtn.addEventListener('click', () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text("Topper Notes AI - Summary", 20, 20);
+      doc.setFontSize(12);
+      const splitText = doc.splitTextToSize(summaryBox.textContent, 170);
+      doc.text(splitText, 20, 40);
+      doc.save("topper-notes-summary.pdf");
+    });
+
+    function makePrompt(text, type) {
+      const header = "Tu ek JEE/NEET 1%ile wala topper ka tutor hai. Ekdum perfect handwritten style notes bana. Hindi+English mix, short tricks, ★ boxes, mnemonics, last mein 5 killer questions. Bold important cheezein.\n\n";
+      
+      const prompts = {
+        topper: header + `Content:\n${text}`,
+        concise: `Short bullet summary (max 15 lines):\n\n${text}`,
+        detailed: `Full structured notes with headings, subheadings, formulas in boxes:\n\n${text}`,
+        qa: `5 most important questions + answers from this content (exam level):\n\n${text}`
+      };
+      return prompts[type] || prompts.topper;
+    }
+  </script>
+</body>
+</html>

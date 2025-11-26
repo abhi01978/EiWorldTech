@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <!-- Basic Meta -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<!-- SEO Title -->
+<title>EiWorldAi - AI Powered Learning, MCQs, Notes & Video Lectures</title>
+
+<!-- Meta Description -->
+<meta name="description" content="EiWorldAi is your personal AI-powered learning platform. Access MCQ practice, PDF notes, video lectures, previous year papers, and AI-powered doubt chat to boost your learning experience.">
+
+<meta name="keywords" content="
+EiWorldAi,
+EiWorldAi study app,
+EiWorldAi learning platform,
+studentquery ai learning,
+studentquery onrender,
+ai study app studentquery,
+ai mcq generator studentquery,
+ai notes generator,
+ai doubt solver,
+online mcq practice ai,
+ai powered education platform,
+student ai tutor
+">
+<!-- Open Graph / Social Media -->
+<meta property="og:title" content="EiWorldAi - Your Personal AI Learning Companion" />
+<meta property="og:description" content="Boost your learning with EiWorldAi: AI-powered MCQs, notes, video lectures, and doubt solving. Join EiWorldAi today!" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://studentquery.onrender.com/" />
+<meta property="og:image" content="https://studentquery.onrender.com/og-image.png" />
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="EiWorldAi - AI Powered Learning" />
+<meta name="twitter:description" content="Access MCQs, notes, video lectures, and AI-powered doubt chat. Study smarter with EiWorldAi!" />
+<meta name="twitter:image" content="https://studentquery.onrender.com/og-image.png" />
+<meta name="google-site-verification" content="cs3WJHrFy9UkkTmBSZ-KliSKzYAOQWhBRrS4Lpe3qss" />
+  <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#4CAF50">
+</head>
+<body class="bg-white w-full h-full">
+
+  <script>
+  if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js")
+      .then(() => console.log("Service Worker Registered"))
+      .catch(err => console.log("SW Error:", err));
+  }
+</script>
+  <div class="w-full min-h-screen bg-white">
+   <!-- Header -->
+<header class="flex items-center justify-between p-4 w-full bg-white shadow-md fixed top-0 left-0 right-0 z-20">
+  
+  <!-- Left: Hamburger -->
+  <button id="btn-toggle-sidebar" class="p-2 bg-gray-100 rounded-xl">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  </button>
+
+  <!-- Center: Search Input -->
+  <div class="flex-1 mx-4">
+    <input type="text" placeholder="Search courses, notes..." 
+           class="w-full rounded-full px-4 py-2 text-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400" />
+  </div>
+
+  <!-- Right: Notification Icon -->
+  <button class="relative p-2 bg-gray-100 rounded-xl">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+    </svg>
+    <!-- Optional: Notification badge -->
+    <span class="absolute top-0 right-0 block w-2 h-2 bg-red-500 rounded-full"></span>
+  </button>
+
+</header>
+<!-- Sidebar -->
+<div id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white shadow-lg transform -translate-x-full transition-transform duration-300 z-30 overflow-y-auto">
+  
+  <!-- Close button -->
+  <div class="flex justify-end p-4">
+    <button id="btn-close-sidebar" class="p-2 rounded-lg hover:bg-gray-100">
+      ✕
+    </button>
+  </div>
+
+  <!-- Sidebar Content -->
+  <div class="p-4 space-y-4">
+<div class="flex items-center gap-3 p-4">
+  <img id="sidebar-profile-img" 
+       src="https://via.placeholder.com/80"
+       class="w-12 h-12 rounded-full object-cover border" />
+
+  <h3 id="sidebar-username" class="font-semibold text-lg">
+    Loading...
+  </h3>
+</div>
+    
+    <!-- Quick Actions -->
+    <div class="flex flex-col gap-2 mt-4">
+      <button class="flex items-center gap-2 p-3 rounded-lg hover:bg-gray-100 transition">
+        📚 My Courses
+      </button>
+      <button class="flex items-center gap-2 p-3 rounded-lg hover:bg-gray-100 transition">
+        📝 Notes
+      </button>
+      <button class="flex items-center gap-2 p-3 rounded-lg hover:bg-gray-100 transition">
+        🎯 Quizzes
+      </button>
+      <button class="flex items-center gap-2 p-3 rounded-lg hover:bg-gray-100 transition">
+        ⭐ Bookmarks
+      </button>
+    </div>
+
+  <!-- Share / Invite -->
+<div class="mt-6">
+  <h4 class="font-semibold text-sm mb-2">Share / Invite</h4>
+  <button id="inviteBtn" class="w-full bg-yellow-400 text-white p-3 rounded-lg hover:bg-yellow-500 transition">
+    Invite Friends
+  </button>
+</div>
+
+<script>
+  const inviteBtn = document.getElementById('inviteBtn');
+
+  inviteBtn.addEventListener('click', () => {
+    // Simple invite link - everyone can share
+    const shareUrl = `${window.location.origin}/signup`;
+
+    if (navigator.share) {
+      // Mobile / modern browsers
+      navigator.share({
+        title: 'Join me on this awesome app!',
+        text: 'Check out this cool app, join now!',
+        url: shareUrl
+      }).then(() => console.log('Shared successfully'))
+        .catch(err => console.error('Share failed:', err));
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(shareUrl)
+        .then(() => alert('Invite link copied! Share it with friends 😎'))
+        .catch(() => alert('Copy failed, share manually: ' + shareUrl));
+    }
+  });
+</script>
+
+  <!-- Navbar Buttons -->
+<div id="auth-buttons" class="mt-6 space-y-2">
+  <button id="login-btn" class="w-full border border-yellow-400 text-yellow-500 p-3 rounded-lg hover:bg-yellow-50 transition">
+    Login
+  </button>
+  <button id="signup-btn" class="w-full bg-yellow-400 text-white p-3 rounded-lg hover:bg-yellow-500 transition">
+    Signup
+  </button>
+</div>
+  </div>
+</div>
+
+<script>
+async function renderAuthButtons() {
+  const authDiv = document.getElementById('auth-buttons');
+
+  try {
+    const res = await fetch('/api/me', { credentials: 'include' });
+    if (res.ok) {
+      const user = await res.json();
+      // Logged in → show Logout
+      authDiv.innerHTML = `
+        <button id="logout-btn" class="w-full bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition">
+          Logout
+        </button>
+        <p class="text-white text-sm mt-1">Hi, ${user.name}</p>
+      `;
+
+      document.getElementById('logout-btn').addEventListener('click', async () => {
+        await fetch('/logout');
+        window.location.reload();
+      });
+
+    } else {
+      // Not logged in → show Login / Signup
+      authDiv.innerHTML = `
+        <button id="login-btn" class="w-full border border-yellow-400 text-yellow-500 p-3 rounded-lg hover:bg-yellow-50 transition">
+          Login
+        </button>
+        <button id="signup-btn" class="w-full bg-yellow-400 text-white p-3 rounded-lg hover:bg-yellow-500 transition">
+          Signup
+        </button>
+      `;
+
+      document.getElementById('login-btn').addEventListener('click', () => window.location.href = '/login');
+      document.getElementById('signup-btn').addEventListener('click', () => window.location.href = '/signup');
+    }
+  } catch (err) {
+    console.error('Auth button render error:', err);
+  }
+}
+
+renderAuthButtons();
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const res = await fetch("/api/me");
+    
+    if (!res.ok) return; // User login nahi hai
+    
+    const user = await res.json();
+
+    // Sidebar me username replace
+    document.getElementById("sidebar-username").innerText = user.name;
+
+    // Profile Image replace
+    if (user.profileImage) {
+      document.getElementById("sidebar-profile-img").src = user.profileImage;
+    }
+
+  } catch (err) {
+    console.log("Error loading user:", err);
+  }
+});
+</script>
+
+
+<!-- Overlay for mobile -->
+<div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-30 hidden z-20"></div>
+
+<!-- JS for toggle -->
+<script>
+  const btnToggle = document.getElementById('btn-toggle-sidebar');
+  const btnClose = document.getElementById('btn-close-sidebar');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+
+  const openSidebar = () => {
+    sidebar.classList.remove('-translate-x-full');
+    overlay.classList.remove('hidden');
+  }
+
+  const closeSidebar = () => {
+    sidebar.classList.add('-translate-x-full');
+    overlay.classList.add('hidden');
+  }
+
+  btnToggle.addEventListener('click', openSidebar);
+  btnClose.addEventListener('click', closeSidebar);
+  overlay.addEventListener('click', closeSidebar);
+</script>
+
+    <!-- Search -->
+    <!-- <div class="px-4 mt-2 flex items-center gap-3 w-full py-6">
+      <div class="relative flex-1">
+        <input class="w-full border border-gray-200 rounded-xl py-3 pl-10 pr-3 text-sm" placeholder="Find a course you want to learn" />
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400 absolute left-3 top-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z" />
+        </svg>
+      </div>
+      <button class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      </button>
+    </div> -->
+<br><br>
+  <!-- Slider -->
+      
+  <div class="relative mt-8 w-full  overflow-hidden rounded-2xl shadow-lg px-2" style="height: 200px;">
+  <!-- Slides Container -->
+  <div id="hero-slider" class="w-full h-full relative">
+
+  <!-- Slide 1 - Video -->
+    <div class="absolute inset-0 w-full h-full transition-opacity duration-700 opacity-100">
+      <video id="slide-video" class="w-full h-full object-cover rounded-2xl" autoplay muted playsinline>
+        <source src="./grok_video_2025-11-23-16-00-11 (1).mp4" type="video/mp4">
+      </video>
+      <!-- <div class="absolute inset-0 flex flex-col items-center justify-center text-center bg-black/30 rounded-2xl">
+        <h1 class="text-3xl font-bold text-white">Welcome Student!</h1>
+        <p class="text-white/80 text-sm mt-1">Your personal AI study buddy</p>
+      </div> -->
+    </div>
+    <!-- Slide 2 - Image -->
+    <div class="absolute inset-0 w-full h-full transition-opacity duration-700 opacity-0">
+      <img src="https://www.imf-formacion.com/uploads/media/21-9-large/04/4814-AdobeStock_377779753.jpg?v=1-0" 
+           alt="Slide 2" class="w-full h-full object-cover rounded-2xl">
+      <div class="absolute inset-0 flex flex-col items-center justify-center text-center bg-black/30 rounded-2xl">
+        <h1 class="text-3xl font-bold text-white">Welcome Student!</h1>
+        <p class="text-white/80 text-sm mt-1">Your personal AI study buddy</p>
+      </div>
+    </div>
+
+    <!-- Slide 3 - Image -->
+    <div class="absolute inset-0 w-full h-full transition-opacity duration-700 opacity-0">
+      <img src="https://st2.depositphotos.com/2001403/11315/i/450/depositphotos_113159158-stock-photo-laptop-and-stack-of-books.jpg" 
+           alt="Slide 3" class="w-full h-full object-cover rounded-2xl">
+      <div class="absolute inset-0 flex flex-col items-center justify-center text-center bg-black/30 rounded-2xl">
+        <h1 class="text-3xl font-bold text-white drop-shadow-lg">Welcome Student!</h1>
+        <p class="text-white/80 text-sm mt-1 drop-shadow">Your personal AI study buddy</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const slides = document.querySelectorAll("#hero-slider > div");
+  let currentSlide = 0;
+
+  function showSlide(index) {
+    slides.forEach((slide, i) => {
+      slide.style.opacity = i === index ? "1" : "0";
+    });
+  }
+
+  function nextSlide() {
+    currentSlide = (currentSlide + 1) % slides.length;
+    showSlide(currentSlide);
+
+    // If next slide is the video, wait for video to finish
+    if(currentSlide === 0) {
+      const video = document.getElementById("slide-video");
+      video.currentTime = 0;
+      video.play();
+      video.onended = () => {
+        nextSlide();
+      }
+    }
+  }
+
+  // Start with first slide (video)
+  const video = document.getElementById("slide-video");
+  video.onended = () => {
+    nextSlide();
+  }
+
+  // Only start automatic sliding after first video ends
+  // For other slides, auto slide every 4 seconds
+  let slideInterval;
+  function startAutoSlide() {
+    slideInterval = setInterval(() => {
+      if(currentSlide !== 0) nextSlide();
+    }, 4000);
+  }
+
+  video.addEventListener("ended", startAutoSlide);
+</script>
+
+
+    <!-- Categories -->
+    <section class="px-4 mt-5 w-full">
+      <h3 class="font-semibold text-sm">Categories</h3>
+      <div class="flex gap-3 overflow-x-auto py-3 w-full">
+        <span class="px-4 py-2 bg-gray-100 rounded-xl text-sm whitespace-nowrap">AI Doubt Solve</span>
+        <span class="px-4 py-2 bg-gray-100 rounded-xl text-sm whitespace-nowrap">AI Chat</span>
+        <span class="px-4 py-2 bg-gray-100 rounded-xl text-sm whitespace-nowrap">AI Summary</span>
+        <span class="px-4 py-2 bg-gray-100 rounded-xl text-sm whitespace-nowrap">AI Notes</span>
+      </div>
+    </section>
+
+  <!-- Popular -->
+<section class="px-4 mt-4 w-full">
+  <h3 class="font-semibold text-sm mb-3">Popular</h3>
+
+  <!-- Scrollable grid with dynamic max-height -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 overflow-y-auto pr-2"
+       style="max-height: calc(100vh - 180px);">
+       
+    <!-- CARD 1 -->
+    <div class="bg-gray-50 rounded-xl p-3 shadow-sm active:scale-95 transition">
+      <div class="w-full h-24 rounded-lg overflow-hidden flex items-center justify-center bg-white">
+        <img src="https://img.freepik.com/premium-vector/business-question-doubt-problem-solving-ideas-creativity-answer-survive-uncertainty_926199-3684498.jpg" class="max-w-full max-h-full object-contain" />
+      </div>
+      <p class="font-semibold text-sm mt-2">AI Doubt Solve</p>
+      <p class="text-xs text-gray-400">Instant • AI</p>
+    </div>
+
+    <!-- CARD 2 -->
+   <a href="./AiChat.html"> <div class="bg-gray-50 rounded-xl p-3 shadow-sm active:scale-95 transition">
+      <div class="w-full h-24 rounded-lg overflow-hidden flex items-center justify-center bg-white">
+        <img src="https://media.istockphoto.com/id/1482901838/vector/3d-artificial-intelligence-digital-brain-neural-network-ai-servers-and-robots-technology.jpg?s=612x612&w=0&k=20&c=Shb9zTKQCpPkTzFvhFr8eGuGdYyHRGXI2mmrvuahkqM=" class="max-w-full max-h-full object-contain" />
+      </div>
+      <p class="font-semibold text-sm mt-2">AI Chat</p>
+      <p class="text-xs text-gray-400">24/7 • Smart</p>
+    </div></a>
+
+    <!-- CARD 3 -->
+   <a href="./summery.html"> <div class="bg-gray-50 rounded-xl p-3 shadow-sm active:scale-95 transition">
+      <div class="w-full h-24 rounded-lg overflow-hidden flex items-center justify-center bg-white">
+        <img src="https://s.smallpdf.com/static/cms/f/102628/600x520/9200cbdbfe/ai-summarizer-1.svg" class="max-w-full max-h-full object-contain" />
+      </div>
+      <p class="font-semibold text-sm mt-2">AI Summary</p>
+      <p class="text-xs text-gray-400">Auto • Fast</p>
+    </div></a>
+
+    <!-- CARD 4 -->
+   <a href="./notes.html"> <div class="bg-gray-50 rounded-xl p-3 shadow-sm active:scale-95 transition">
+      <div class="w-full h-24 rounded-lg overflow-hidden flex items-center justify-center bg-white">
+        <img src="https://play-lh.googleusercontent.com/IhBllULQlU8pDSudvwxQIiM_Dq5GhjXFH-J7UU4b9fxP9AKaC0Zy-XHe7XflfrRmijA" class="max-w-full max-h-full object-contain" />
+      </div>
+      <p class="font-semibold text-sm mt-2">AI Notes</p>
+      <p class="text-xs text-gray-400">Smart • Auto</p>
+    </div></a>
+
+  <!-- CARD 4 -->
+<a href="/speak">
+  <div class="bg-gray-50 rounded-xl p-3 shadow-sm hover:shadow-md active:scale-95 transition">
+    <!-- Icon/Image Container -->
+    <div class="w-full h-24 rounded-lg overflow-hidden flex items-center justify-center bg-white">
+      <img src="https://web.getfluently.app/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fonboarding-intro.9d5c96af.webp&w=3840&q=75" class="max-w-full max-h-full object-contain" alt="AI Voice English" />
+    </div>
+    
+    <!-- Title -->
+    <p class="font-semibold text-sm mt-2">AI English Tutor</p>
+    
+    <!-- Description / Features -->
+    <p class="text-xs text-gray-400">Learn English with AI • Voice-to-Voice & Chat • Personalized Lessons</p>
+  </div>
+</a>
+
+<a href="/pdf.html">
+  <div class="bg-gray-50 rounded-xl p-3 shadow-sm hover:shadow-md active:scale-95 transition">
+    <!-- Icon/Image Container -->
+    <div class="w-full h-24 rounded-lg overflow-hidden flex items-center justify-center bg-white">
+      <img src="https://img.icons8.com/fluency/96/pdf-2.png" class="max-w-full max-h-full object-contain" alt="Student Notes PDF" />
+    </div>
+    
+    <!-- Title -->
+    <p class="font-semibold text-sm mt-2">Student Notes</p>
+    
+    <!-- Description / Features -->
+    <p class="text-xs text-gray-400">Upload & View PDFs • Share Notes • Access All Study Materials</p>
+  </div>
+</a>
+
+  </div>
+</section>
+
+<br><br><br><br>
+
+    <!-- Bottom Nav (Fixed) -->
+
+<nav class="fixed bottom-0 left-0 w-full border-t bg-white flex justify-around items-center py-3 text-xs text-gray-500">
+  
+  <!-- Home -->
+  <button class="flex flex-col items-center">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10"/>
+    </svg>
+    Home
+  </button>
+
+  <!-- Tools -->
+  <button class="flex flex-col items-center">
+    <a href="./news.html" class="flex flex-col items-center"><img src="https://img.icons8.com/ios-filled/50/666666/task.png" class="w-6"/><span>News</span></a>
+  
+  </button>
+
+  <!-- Center Start Button -->
+<a href="./scan.html">  <button class="flex items-center justify-center w-14 h-14 bg-red-500 text-white rounded-full -mt-7 shadow-lg text-3xl font-bold">
+    +
+  </button></a>
+
+  <!-- Saved -->
+  <button class="flex flex-col items-center">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+    </svg>
+    Saved
+  </button>
+
+  <!-- Profile -->
+ <!-- Profile Button -->
+<button id="profileBtn" class="flex flex-col items-center">
+  <!-- Default icon shown if user not logged in -->
+  <svg id="defaultIcon" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A4 4 0 017 17h10a4 4 0 011.879.804M12 14a4 4 0 100-8 4 4 0 000 8z"/>
+  </svg>
+
+  <!-- Hidden by default, shown only if logged in -->
+  <img id="profileImg" src="" alt="Profile" class="w-6 h-6 mb-1 rounded-full object-cover hidden">
+
+  <span id="profileName">Profile</span>
+</button>
+
+
+</nav>
+
+  </div>
+  <script>
+    async function loadProfileBtn() {
+  const imgEl = document.getElementById('profileImg');
+  const iconEl = document.getElementById('defaultIcon');
+  const nameEl = document.getElementById('profileName');
+  const btn = document.getElementById('profileBtn');
+
+  try {
+    const res = await fetch('/api/me');
+    if (!res.ok) throw new Error('Not logged in');
+    const user = await res.json();
+
+    // Show user profile image
+    if (user.profileImage) {
+      imgEl.src = user.profileImage;
+      imgEl.classList.remove('hidden');
+      iconEl.classList.add('hidden');
+    }
+
+    // Show username instead of "Profile"
+    nameEl.textContent = user.name || 'Profile';
+
+    // Click → profile.html
+    btn.addEventListener('click', () => {
+      window.location.href = '/profile';
+    });
+
+  } catch (err) {
+    console.log('User not logged in, default icon and text remain');
+
+    // Click → login page
+    btn.addEventListener('click', () => {
+      window.location.href = '/login';
+    });
+  }
+}
+
+window.addEventListener('DOMContentLoaded', loadProfileBtn);
+
+  </script>
+</body>
+</html>

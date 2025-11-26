@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DoubtKing AI - Topper Banega Tu!</title>
+
+  <!-- MathJax for perfect equations -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
+    body { 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+      min-height:100vh; 
+      color:white; 
+    }
+    .container { max-width: 500px; margin: 20px auto; padding: 20px; text-align:center; }
+    h1 { font-size: 3rem; margin-bottom: 10px; text-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+    .tagline { font-size: 1.2rem; margin-bottom: 30px; opacity: 0.9; }
+
+    .upload-box {
+      background: rgba(255,255,255,0.15);
+      border: 3px dashed white;
+      border-radius: 20px;
+      padding: 40px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .upload-box:hover { background: rgba(255,255,255,0.25); }
+    .upload-box button {
+      margin-top: 20px;
+      padding: 12px 30px;
+      font-size: 1.1rem;
+      background: #ff4757;
+      border: none;
+      border-radius: 50px;
+      color: white;
+      cursor: pointer;
+    }
+
+    #preview img { max-width: 100%; border-radius: 15px; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+
+    .question-box, .answer-box {
+      background: rgba(255,255,255,0.1);
+      padding: 18px;
+      border-radius: 18px;
+      margin: 18px 0;
+      text-align: left;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .hidden { display: none; }
+
+    button {
+      padding: 14px 30px;
+      background: #2ed573;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-top: 20px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    /* Beautiful solution styling */
+    .solution-text {
+      line-height: 2.1;
+      font-size: 1.15rem;
+    }
+    .solution-text strong {
+      color: #ffd93d;
+      font-weight: bold;
+    }
+    .solution-text sup {
+      font-size: 0.8rem;
+      vertical-align: super;
+    }
+    .solution-text sub {
+      font-size: 0.8rem;
+      vertical-align: sub;
+    }
+  </style>
+
+  <link rel="manifest" href="/manifest.json"/>
+</head>
+<body>
+  <div class="container">
+    <h1>DOUBTKING AI</h1>
+    <p class="tagline">Photo khicho → Topper jawab milega!</p>
+
+    <div class="upload-box" id="uploadBox">
+      <input type="file" accept="image/*" id="imageInput" hidden />
+      <p>Photo upload karo ya camera se click karo</p>
+      <button onclick="document.getElementById('imageInput').click()">Photo Lo</button>
+    </div>
+
+    <div id="preview" class="hidden">
+      <img id="previewImg" src="" alt="Question" />
+      <p id="status" style="font-size:1.3rem;margin-top:20px;">AI soch raha hai... 5 second mein jawab!</p>
+    </div>
+
+    <div id="result" class="hidden">
+      <h2>Jawab aa gaya bhai!</h2>
+      
+      <div class="question-box">
+        <strong>Question:</strong>
+        <p id="questionText" style="margin-top:8px; word-break: break-word;"></p>
+      </div>
+      
+      <div class="answer-box">
+        <strong>Full Solution:</strong>
+        <div id="answerText" class="solution-text" style="margin-top:12px;"></div>
+      </div>
+      
+      <button onclick="reset()">Ek aur doubt solve karo!</button>
+    </div>
+  </div>
+
+  <script>
+    const imageInput = document.getElementById('imageInput');
+    const preview = document.getElementById('preview');
+    const previewImg = document.getElementById('previewImg');
+    const status = document.getElementById('status');
+    const result = document.getElementById('result');
+    const questionText = document.getElementById('questionText');
+    const answerText = document.getElementById('answerText');
+
+    imageInput.addEventListener('change', () => {
+      const file = imageInput.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        previewImg.src = reader.result;
+        preview.classList.remove('hidden');
+        uploadImage(file);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function uploadImage(file) {
+      status.textContent = "Topper jawab aa raha hai... bas 5 sec!";
+      const formData = new FormData();
+      formData.append('image', file);
+
+      fetch('/solve', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          questionText.textContent = data.extracted_question;
+          
+          // PERFECT FORMATTING - equations ab book jaise dikhegi!
+          let formatted = data.solution
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/->/g, '→')
+            .replace(/Mg\^2\+/g, 'Mg<sup>2+</sup>')
+            .replace(/O\^2\-/g, 'O<sup>2-</sup>')
+            .replace(/H\^\+/g, 'H<sup>+</sup>')
+            .replace(/([A-Za-z])\^(\d+)/g, '$1<sup>$2</sup>')
+            .replace(/([A-Za-z])\^\+/g, '$1<sup>+</sup>')
+            .replace(/([A-Za-z])\^-/g, '$1<sup>-</sup>')
+            .replace(/\n/g, '<br>');
+
+          answerText.innerHTML = formatted;
+          preview.classList.add('hidden');
+          result.classList.remove('hidden');
+        } else {
+          status.textContent = "Error: " + data.error;
+        }
+      })
+      .catch(err => {
+        status.textContent = "Server thoda busy hai... 10 sec baad try kar!";
+      });
+    }
+
+    function reset() {
+      result.classList.add('hidden');
+      preview.classList.add('hidden');
+      imageInput.value = '';
+      document.getElementById('uploadBox').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
